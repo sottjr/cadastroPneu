@@ -117,172 +117,48 @@ public class CadastroPneu {
 					if (ltDimensao.equals("")) {
 						ltDimensao = lsDimensao;
 
-						StringBuilder consultaDimensaoPneu = new StringBuilder();
-						consultaDimensaoPneu.append("select distinct ");
-						consultaDimensaoPneu.append("	cd_dimensao ");
-						consultaDimensaoPneu.append("from ");
-						consultaDimensaoPneu.append("	pneu ");
-						consultaDimensaoPneu.append("where ");
-						consultaDimensaoPneu.append("	dimensao = ? ");
-						consultaDimensaoPneu.append("and ");
-						consultaDimensaoPneu.append("	cd_dimensao != 0");
+						codigoDimensaoPneu = buscaCodigoTabelaPneu(integracaoVO, "dimensao", "cd_dimensao", lsDimensao);
 
-						try (Connection conNew = integracaoVO.getConexao()) {
-							try (PreparedStatement pst = con.prepareStatement(consultaDimensaoPneu.toString())) {
-								int i = 1;
-								pst.setString(i++, lsDimensao);
-								try (ResultSet rs = pst.executeQuery()) {
-									while (rs.next()) {
-										codigoDimensaoPneu = rs.getInt("cd_dimensao");
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
-					} else if (ltDimensao != "") {
+					} else {
+						String novoCodigoDimensaoPneu = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_dimensao",
+								codigoDimensaoPneu);
+						codigoDimensaoPneu = novoCodigoDimensaoPneu;
 
-						StringBuilder consultarCodigoNovoDimensaoPneu = new StringBuilder();
-						consultarCodigoNovoDimensaoPneu.append("select ");
-						consultarCodigoNovoDimensaoPneu.append("     MAX(cd_dimensao) + 1 as cd_dimensao");
-						consultarCodigoNovoDimensaoPneu.append("from ");
-						consultarCodigoNovoDimensaoPneu.append("     pneu");
-
-						try (PreparedStatement pst = con.prepareStatement(consultarCodigoNovoDimensaoPneu.toString())) {
-							try (ResultSet rs = pst.executeQuery()) {
-								codigoDimensaoPneu = rs.getInt("cd_dimensao");
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
 					}
 
 					if (ltModelo.equals("")) {
 						ltModelo = lsModelo;
 
-						StringBuilder consultaCodigoModelo = new StringBuilder();
-						consultaCodigoModelo.append("select distinct ");
-						consultaCodigoModelo.append("	cd_modelo ");
-						consultaCodigoModelo.append("from ");
-						consultaCodigoModelo.append("	pneu ");
-						consultaCodigoModelo.append("where ");
-						consultaCodigoModelo.append("	nm_modelo = ? ");
-						consultaCodigoModelo.append("and ");
-						consultaCodigoModelo.append("	cd_modelo != 0");
+						codigoModelo = buscaCodigoTabelaPneu(integracaoVO, "nm_modelo", "cd_modelo", lsModelo);
 
-						try (Connection conNew = integracaoVO.getConexao()) {
-							try (PreparedStatement pst = con.prepareStatement(consultaCodigoModelo.toString())) {
-								int i = 1;
-								pst.setString(i++, lsModelo);
-								try (ResultSet rs = pst.executeQuery()) {
-									while (rs.next()) {
-										codigoModelo = rs.getInt("cd_modelo");
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
-					} else if (ltModelo != "") {
-						StringBuilder consultarCodigoNovoModelo = new StringBuilder();
-						consultarCodigoNovoModelo.append("     MAX(cd_modelo) + 1 as cd_modelo");
-						consultarCodigoNovoModelo.append("select ");
-						consultarCodigoNovoModelo.append("from ");
-						consultarCodigoNovoModelo.append("     pneu");
+					} else {
 
-						try (PreparedStatement pst = con.prepareStatement(consultarCodigoNovoModelo.toString())) {
-							try (ResultSet rs = pst.executeQuery()) {
-								codigoModelo = rs.getInt("cd_modelo");
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
+						String novoCodigoModelo = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_dimensao", codigoModelo);
+						codigoModelo = novoCodigoModelo;
+
 					}
 
 					if (ltDesenho.equals("")) {
 						ltDesenho = lsDesenho;
 
-						StringBuilder consultaCodigoDesenho = new StringBuilder();
-						consultaCodigoDesenho.append("select distinct ");
-						consultaCodigoDesenho.append("		cd_desenho ");
-						consultaCodigoDesenho.append("from ");
-						consultaCodigoDesenho.append("		pneu ");
-						consultaCodigoDesenho.append("where ");
-						consultaCodigoDesenho.append("		nm_desenho = ? ");
-						consultaCodigoDesenho.append("and ");
-						consultaCodigoDesenho.append("		cd_desenho != 0");
+						codigoDesenho = buscaCodigoTabelaPneu(integracaoVO, "nm_desenho", "cd_desenho", lsDesenho);
 
-						try (Connection conNew = integracaoVO.getConexao()) {
-							try (PreparedStatement pst = con.prepareStatement(consultaCodigoDesenho.toString())) {
-								int i = 1;
-								pst.setString(i++, lsDesenho);
-								try (ResultSet rs = pst.executeQuery()) {
-									while (rs.next()) {
-										codigoDesenho = rs.getInt("cd_desenho");
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
-					} else if (ltDesenho != "") {
-
-						StringBuilder consultaNovoCodigoDesenho = new StringBuilder();
-						consultaNovoCodigoDesenho.append("select ");
-						consultaNovoCodigoDesenho.append("     MAX(cd_desenho) + 1 as cd_desenho");
-						consultaNovoCodigoDesenho.append("from ");
-						consultaNovoCodigoDesenho.append("     pneu");
-
-						try (PreparedStatement pst = con.prepareStatement(consultaNovoCodigoDesenho.toString())) {
-							try (ResultSet rs = pst.executeQuery()) {
-								codigoDesenho = rs.getInt("cd_desenho");
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
+					} else {
+						String novoCodigoDesenho = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_desenho", codigoDesenho);
+						codigoDesenho = novoCodigoDesenho;
 					}
 
 					if (ltTipoBorracha.equals("")) {
 						ltTipoBorracha = lsTipoBorracha;
 
-						StringBuilder consultaCodigoTipoBorracha = new StringBuilder();
-						consultaCodigoTipoBorracha.append("select distinct ");
-						consultaCodigoTipoBorracha.append("		cd_tipo_borra ");
-						consultaCodigoTipoBorracha.append("from ");
-						consultaCodigoTipoBorracha.append("		pneu ");
-						consultaCodigoTipoBorracha.append("where ");
-						consultaCodigoTipoBorracha.append("		nm_tipo_borra = ? ");
-						consultaCodigoTipoBorracha.append("and ");
-						consultaCodigoTipoBorracha.append("		cd_tipo_borra != 0 ");
+						codigoTipoBorracha = buscaCodigoTabelaPneu(integracaoVO, "nm_tipo_borra", "cd_tipo_borra",
+								lsTipoBorracha);
 
-						try (Connection conNew = integracaoVO.getConexao()) {
-							try (PreparedStatement pst = con.prepareStatement(consultaCodigoTipoBorracha.toString())) {
-								int i = 1;
-								pst.setString(i++, lsTipoBorracha);
-								try (ResultSet rs = pst.executeQuery()) {
-									while (rs.next()) {
-										codigoTipoBorracha = rs.getInt("cd_tipo_borra");
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
-					} else if (ltTipoBorracha != "") {
+					} else {
 
-						StringBuilder consultaNovoCodigoTipoBorracha = new StringBuilder();
-						consultaNovoCodigoTipoBorracha.append("select ");
-						consultaNovoCodigoTipoBorracha.append("     MAX(cd_tipo_borra) + 1 as cd_tipo_borra");
-						consultaNovoCodigoTipoBorracha.append("from ");
-						consultaNovoCodigoTipoBorracha.append("     pneu");
-
-						try (PreparedStatement pst = con.prepareStatement(consultaNovoCodigoTipoBorracha.toString())) {
-							try (ResultSet rs = pst.executeQuery()) {
-								codigoTipoBorracha = rs.getInt("cd_tipo_borra");
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
+						String novoCodigoTipoBorracha = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_desenho",
+								codigoTipoBorracha);
+						codigoTipoBorracha = novoCodigoTipoBorracha;
 					}
 
 					if (ltFornecedor.equals("")) {
@@ -304,7 +180,7 @@ public class CadastroPneu {
 								pst.setString(i++, lsFornecedor);
 								try (ResultSet rs = pst.executeQuery()) {
 									while (rs.next()) {
-										codigoFornecedor = rs.getInt("cd_fornecedor");
+										codigoFornecedor = rs.getString("cd_fornecedor");
 									}
 								} catch (Exception e) {
 									e.printStackTrace();
@@ -321,7 +197,7 @@ public class CadastroPneu {
 
 						try (PreparedStatement pst = con.prepareStatement(consultaNovoCodigoFornecedor.toString())) {
 							try (ResultSet rs = pst.executeQuery()) {
-								codigoFornecedor = rs.getInt("cd_fornecedor");
+								codigoFornecedor = rs.getString("cd_fornecedor");
 								insertTabelaFornecedor(integracaoVO, codigoFornecedor, ltFornecedor);
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -335,29 +211,27 @@ public class CadastroPneu {
 						LocalDateTime Data = LocalDateTime.now();
 						String dataFormatada = Data.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-						// int test = (int) ob.get("CAD_LT_NR_VIDA");
-
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_LT_COD_PNEU"), ""));
 						pst1.setString(i++, ltFabrica);
 						pst1.setString(i++, codigoFabrica);
 						pst1.setString(i++, ltModelo);
-						pst1.setInt(i++, codigoModelo);
+						pst1.setString(i++, codigoModelo);
 						pst1.setString(i++, ltTipoBorracha);
-						pst1.setInt(i++, codigoTipoBorracha);
+						pst1.setString(i++, codigoTipoBorracha);
 						pst1.setString(i++, ltDesenho);
-						pst1.setInt(i++, codigoDesenho);
+						pst1.setString(i++, codigoDesenho);
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_LT_NR_SERIE"), "0"));
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_LT_NR_VIDA"), "0"));
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_LT_LIBRAS"), "0"));
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_LT_DOT"), "0"));
 						pst1.setString(i++, ltDimensao);
-						pst1.setInt(i++, codigoDimensaoPneu);
+						pst1.setString(i++, codigoDimensaoPneu);
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_ND_SULCO1"), "0"));
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_ND_SULCO2"), "0"));
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_ND_SULCO3"), "0"));
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_ND_SULCO4"), "0"));
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_ND_SULCO5"), "0"));
-						pst1.setInt(i++, codigoFornecedor);
+						pst1.setString(i++, codigoFornecedor);
 						pst1.setString(i++, Funcoes.nulo(ob.get("CAD_MT_VALOR"), "0"));
 						pst1.setString(i++, "ADM");
 						pst1.setString(i++, dataFormatada);
@@ -391,7 +265,7 @@ public class CadastroPneu {
 		}
 	}
 
-	public void insertTabelaFornecedor(IntegracaoVO integracaoVO, int codigoFornecedor, String nomeFornecedor) {
+	public void insertTabelaFornecedor(IntegracaoVO integracaoVO, String codigoFornecedor, String nomeFornecedor) {
 		try {
 			integracaoVO.setConexao("BPM_AUX");
 			try (Connection con = integracaoVO.getConexao()) {
@@ -404,7 +278,7 @@ public class CadastroPneu {
 				inserirFornecedor.append("(?,?);");
 
 				try (PreparedStatement pst = con.prepareStatement(inserirFornecedor.toString())) {
-					pst.setInt(1, codigoFornecedor);
+					pst.setString(1, codigoFornecedor);
 					pst.setString(2, nomeFornecedor);
 					pst.executeUpdate();
 
