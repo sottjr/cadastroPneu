@@ -97,75 +97,47 @@ public class CadastroPneu {
 
 					if (ltFabrica.equals("")) {
 						ltFabrica = lsFabrica;
-
 						codigoFabrica = buscaCodigoTabelaPneu(integracaoVO, "nm_fabrica", "cd_fabrica", ltFabrica);
-
-					}
-
-					else {
+					} else {
 						int novoCodigoFabrica = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_fabrica");
-
 						codigoFabrica = novoCodigoFabrica;
 					}
-
 					if (ltDimensao.equals("")) {
 						ltDimensao = lsDimensao;
-
 						codigoDimensaoPneu = buscaCodigoTabelaPneu(integracaoVO, "dimensao", "cd_dimensao", lsDimensao);
 					} else {
 						int novoCodigoDimensaoPneu = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_dimensao");
-
 						codigoDimensaoPneu = novoCodigoDimensaoPneu;
 					}
-
 					if (ltModelo.equals("")) {
 						ltModelo = lsModelo;
-
 						codigoModelo = buscaCodigoTabelaPneu(integracaoVO, "nm_modelo", "cd_modelo", lsModelo);
-
 					} else {
-
 						int novoCodigoModelo = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_dimensao");
-
 						codigoModelo = novoCodigoModelo;
 					}
-
 					if (ltDesenho.equals("")) {
 						ltDesenho = lsDesenho;
-
 						codigoDesenho = buscaCodigoTabelaPneu(integracaoVO, "nm_desenho", "cd_desenho", lsDesenho);
-
 					} else {
-
 						int novoCodigoDesenho = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_desenho");
-
 						codigoDesenho = novoCodigoDesenho;
 					}
-
 					if (ltTipoBorracha.equals("")) {
 						ltTipoBorracha = lsTipoBorracha;
-
 						codigoTipoBorracha = buscaCodigoTabelaPneu(integracaoVO, "nm_tipo_borra", "cd_tipo_borra",
 								lsTipoBorracha);
-
 					} else {
-
 						int novoCodigoTipoBorracha = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_desenho");
-
 						codigoTipoBorracha = novoCodigoTipoBorracha;
 					}
-
 					if (ltFornecedor.equals("")) {
 						ltFornecedor = lsFornecedor;
-						
 						codigoFornecedor = buscaCodigoTabelaFornecedor(integracaoVO, "nm_fornecedor", "cd_fornecedor",
 								lsFornecedor);
-						
 					} else {
 						buscaNovoCodigoTabelaFornecedor(integracaoVO, "cd_fornecedor", ltFornecedor);
-							
 					}
-
 					try (PreparedStatement pst1 = con.prepareStatement(inserirPneu.toString())) {
 						int i = 1;
 
@@ -197,9 +169,6 @@ public class CadastroPneu {
 						pst1.setString(i++, "ADM");
 						pst1.setString(i++, dataFormatada);
 
-						logger.info("Este é o ltFabrica" + ltFabrica);
-						logger.info("Este é o lsFabrica" + lsFabrica);
-
 						pst1.executeUpdate();
 
 					} catch (Exception e) {
@@ -210,7 +179,6 @@ public class CadastroPneu {
 			}
 			logger.info("# codProcesso = " + integracaoVO.getCodProcesso());
 			logger.info("# codEtapa = " + integracaoVO.getCodEtapa());
-
 			logger.info("====== FIM CadastroPneu ======");
 			logger.info(new String(new char[100]).replace("\0", "#"));
 
@@ -231,16 +199,12 @@ public class CadastroPneu {
 				inserirFornecedor.append("		,nm_fornecedor)");
 				inserirFornecedor.append("Values");
 				inserirFornecedor.append("(?,?);");
-
 				try (PreparedStatement pst = con.prepareStatement(inserirFornecedor.toString())) {
 					pst.setInt(1, codigoFornecedor);
 					pst.setString(2, nomeFornecedor);
 					pst.executeUpdate();
-
 				}
-
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -264,9 +228,7 @@ public class CadastroPneu {
 				try (PreparedStatement pst = con.prepareStatement(buscarCodigo.toString())) {
 					int i = 1;
 					pst.setString(i++, lsValue);
-
 					try (ResultSet rs = pst.executeQuery()) {
-
 						while (rs.next()) {
 							codigoEncontrado = rs.getInt("codigo");
 						}
@@ -290,11 +252,8 @@ public class CadastroPneu {
 			buscarNovoCodigoAddMaisUm.append("	pneu ");
 
 			try (Connection con = integracaoVO.getConexao()) {
-
 				try (PreparedStatement pst = con.prepareStatement(buscarNovoCodigoAddMaisUm.toString())) {
-
 					try (ResultSet rs = pst.executeQuery()) {
-
 						while (rs.next()) {
 							codigoNovo = rs.getInt("codigo");
 						}
@@ -303,7 +262,6 @@ public class CadastroPneu {
 					}
 				}
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -341,7 +299,7 @@ public class CadastroPneu {
 		}
 		return codigoFornecedorEncontrado;
 	}
-	
+
 	public void buscaNovoCodigoTabelaFornecedor(IntegracaoVO integracaoVO, String codigoColuna, String ltValue) {
 
 		int codigoNovoFornecedor = 0;
@@ -351,11 +309,8 @@ public class CadastroPneu {
 			buscarNovoCodigoAddMaisUmFornecedores.append(" select MAX(" + codigoColuna + ") + 1 as codigo ");
 			buscarNovoCodigoAddMaisUmFornecedores.append(" from ");
 			buscarNovoCodigoAddMaisUmFornecedores.append("	fornecedor ");
-
 			try (Connection con = integracaoVO.getConexao()) {
-
 				try (PreparedStatement pst = con.prepareStatement(buscarNovoCodigoAddMaisUmFornecedores.toString())) {
-
 					try (ResultSet rs = pst.executeQuery()) {
 						codigoNovoFornecedor = rs.getInt("cd_fornecedor");
 						insertTabelaFornecedor(integracaoVO, codigoNovoFornecedor, ltValue);
@@ -369,5 +324,4 @@ public class CadastroPneu {
 			e.printStackTrace();
 		}
 	}
-	
 }
