@@ -26,18 +26,12 @@ import br.com.lecom.atos.servicos.annotation.Version;
 @Version({ 1, 0, 0 })
 public class CadastroPneu {
 	private final Logger logger = Logger.getLogger(this.getClass());
-	// private static final Logger logger =
-	// Logger.getLogger(this.CadastroPneu.class);
 
 	@Execution
 	public void realizarCadastroPneu(IntegracaoVO integracaoVO) throws Exception {
-		// String msgPneu = "";
 		logger.info("====== INICIO CadastroPneu ======");
 
 		try {
-			// try (Connection conWF2 = DBUtils.getConnection("WorkFlow")) {
-			// deleteItensGrid(integracaoVO, conWF2, "G_relat_aux_idiINSCRICAO");
-			// }
 			integracaoVO.setConexao("BPM_AUX");
 
 			List<Map<String, Object>> listaGrid = integracaoVO.getDadosModeloGrid("CADPNEU");
@@ -163,46 +157,13 @@ public class CadastroPneu {
 
 					if (ltFornecedor.equals("")) {
 						ltFornecedor = lsFornecedor;
-
-						StringBuilder consultaCodigoFornecedor = new StringBuilder();
-						consultaCodigoFornecedor.append("select distinct ");
-						consultaCodigoFornecedor.append("		cd_fornecedor ");
-						consultaCodigoFornecedor.append("from ");
-						consultaCodigoFornecedor.append("		fornecedor ");
-						consultaCodigoFornecedor.append("where ");
-						consultaCodigoFornecedor.append("		nm_fornecedor = ?");
-						consultaCodigoFornecedor.append("and ");
-						consultaCodigoFornecedor.append("		cd_fornecedor != 0");
-
-						try (Connection conNew = integracaoVO.getConexao()) {
-							try (PreparedStatement pst = con.prepareStatement(consultaCodigoFornecedor.toString())) {
-								int i = 1;
-								pst.setString(i++, lsFornecedor);
-								try (ResultSet rs = pst.executeQuery()) {
-									while (rs.next()) {
-										codigoFornecedor = rs.getInt("cd_fornecedor");
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
-					} else if (ltFornecedor != "") {
-
-						StringBuilder consultaNovoCodigoFornecedor = new StringBuilder();
-						consultaNovoCodigoFornecedor.append("select ");
-						consultaNovoCodigoFornecedor.append("     MAX(cd_fornecedor) + 1 as cd_fornecedor");
-						consultaNovoCodigoFornecedor.append("from ");
-						consultaNovoCodigoFornecedor.append("     fornecedor");
-
-						try (PreparedStatement pst = con.prepareStatement(consultaNovoCodigoFornecedor.toString())) {
-							try (ResultSet rs = pst.executeQuery()) {
-								codigoFornecedor = rs.getInt("cd_fornecedor");
-								insertTabelaFornecedor(integracaoVO, codigoFornecedor, ltFornecedor);
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
+						
+						codigoFornecedor = buscaCodigoTabelaFornecedor(integracaoVO, "nm_fornecedor", "cd_fornecedor",
+								lsFornecedor);
+						
+					} else {
+						buscaNovoCodigoTabelaFornecedor(integracaoVO, "cd_fornecedor", ltFornecedor);
+							
 					}
 
 					try (PreparedStatement pst1 = con.prepareStatement(inserirPneu.toString())) {
@@ -240,15 +201,10 @@ public class CadastroPneu {
 						logger.info("Este é o lsFabrica" + lsFabrica);
 
 						pst1.executeUpdate();
-						// if (resultado < 1) {
-						// logger.error(" ==== [ (rep2)ERRO AO INSERIR DADOS ] ==== ");
-						// msgPneu = "99|Erro ao salvar cadastro dos Pneus no Lecom";
-						// } else {
-						// msgPneu = "0|Pneus Atualizados com sucesso! ";
-						// }
+
 					} catch (Exception e) {
 						logger.error(" ==== [ ] ==== ", e);
-						// msgPneu = "99|Erro ao salvar";
+
 					}
 				}
 			}
@@ -258,9 +214,8 @@ public class CadastroPneu {
 			logger.info("====== FIM CadastroPneu ======");
 			logger.info(new String(new char[100]).replace("\0", "#"));
 
-			// return "0| Integra��o processada";
 		} catch (Exception e) {
-			logger.error("Erro ao executar integra��o", e);
+			logger.error("Erro ao executar integração", e);
 
 		}
 	}
@@ -294,9 +249,10 @@ public class CadastroPneu {
 
 	public int buscaCodigoTabelaPneu(IntegracaoVO integracaoVO, String nomeColuna, String codigoColuna,
 			String lsValue) {
-		int codigoEncontrado = 0;
-		try {
 
+		int codigoEncontrado = 0;
+
+		try {
 			StringBuilder buscarCodigo = new StringBuilder();
 			buscarCodigo.append(" select distinct " + codigoColuna + " as codigo ");
 			buscarCodigo.append(" from ");
@@ -308,17 +264,15 @@ public class CadastroPneu {
 				try (PreparedStatement pst = con.prepareStatement(buscarCodigo.toString())) {
 					int i = 1;
 					pst.setString(i++, lsValue);
+
 					try (ResultSet rs = pst.executeQuery()) {
+
 						while (rs.next()) {
 							codigoEncontrado = rs.getInt("codigo");
-
 						}
-
 					}
-
 				}
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -336,13 +290,13 @@ public class CadastroPneu {
 			buscarNovoCodigoAddMaisUm.append("	pneu ");
 
 			try (Connection con = integracaoVO.getConexao()) {
-				logger.info(buscarNovoCodigoAddMaisUm.toString());
+
 				try (PreparedStatement pst = con.prepareStatement(buscarNovoCodigoAddMaisUm.toString())) {
+
 					try (ResultSet rs = pst.executeQuery()) {
+
 						while (rs.next()) {
-							logger.info(rs.getInt("codigo"));
 							codigoNovo = rs.getInt("codigo");
-							
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -353,7 +307,67 @@ public class CadastroPneu {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.info(codigoNovo);
 		return codigoNovo;
 	}
+
+	public int buscaCodigoTabelaFornecedor(IntegracaoVO integracaoVO, String nomeColuna, String codigoColuna,
+			String lsValue) {
+
+		int codigoFornecedorEncontrado = 0;
+
+		try {
+			StringBuilder buscarCodigoFornecedor = new StringBuilder();
+			buscarCodigoFornecedor.append(" select distinct " + codigoColuna + " as codigo ");
+			buscarCodigoFornecedor.append(" from ");
+			buscarCodigoFornecedor.append("		fornecedor ");
+			buscarCodigoFornecedor.append(" where " + nomeColuna + " = ? ");
+			buscarCodigoFornecedor.append(" and " + codigoColuna + " != 0");
+
+			try (Connection con = integracaoVO.getConexao()) {
+				try (PreparedStatement pst = con.prepareStatement(buscarCodigoFornecedor.toString())) {
+					int i = 1;
+					pst.setString(i++, lsValue);
+
+					try (ResultSet rs = pst.executeQuery()) {
+
+						while (rs.next()) {
+							codigoFornecedorEncontrado = rs.getInt("codigo");
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return codigoFornecedorEncontrado;
+	}
+	
+	public void buscaNovoCodigoTabelaFornecedor(IntegracaoVO integracaoVO, String codigoColuna, String ltValue) {
+
+		int codigoNovoFornecedor = 0;
+
+		try {
+			StringBuilder buscarNovoCodigoAddMaisUmFornecedores = new StringBuilder();
+			buscarNovoCodigoAddMaisUmFornecedores.append(" select MAX(" + codigoColuna + ") + 1 as codigo ");
+			buscarNovoCodigoAddMaisUmFornecedores.append(" from ");
+			buscarNovoCodigoAddMaisUmFornecedores.append("	fornecedor ");
+
+			try (Connection con = integracaoVO.getConexao()) {
+
+				try (PreparedStatement pst = con.prepareStatement(buscarNovoCodigoAddMaisUmFornecedores.toString())) {
+
+					try (ResultSet rs = pst.executeQuery()) {
+						codigoNovoFornecedor = rs.getInt("cd_fornecedor");
+						insertTabelaFornecedor(integracaoVO, codigoNovoFornecedor, ltValue);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 }
