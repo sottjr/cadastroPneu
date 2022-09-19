@@ -94,70 +94,24 @@ public class CadastroPneu {
 					String ltFornecedor = Funcoes.nulo(ob.get("CAD_LS_FORNECEDOR"), "");
 					String lsFornecedor = Funcoes.nulo(ob.get("CAD_LT_NEW_FORNECEDOR "), "");
 
-					String codigoFabrica = "";
-					int codigoDimensaoPneu = 1;
-					int codigoModelo = 1;
-					int codigoDesenho = 1;
-					int codigoTipoBorracha = 1;
-					int codigoFornecedor = 1;
+					String codigoFabrica = "0";
+					String codigoDimensaoPneu = "0";
+					String codigoModelo = "0";
+					String codigoDesenho = "0";
+					String codigoTipoBorracha = "0";
+					String codigoFornecedor = "0";
 
 					if (ltFabrica.equals("")) {
-						ltFabrica = lsFabrica;						
-						
-						codigoFabrica =  buscaCodigoTabelaPneu(integracaoVO, "nm_fabrica", "cd_fabrica", lsFabrica);
-						
-						}
-					
-						//inicio antigo codigo
-						/*StringBuilder consultarCodigoFabrica = new StringBuilder();
-						consultarCodigoFabrica.append("select distinct");
-						consultarCodigoFabrica.append("     cd_fabrica ");
-						consultarCodigoFabrica.append("from ");
-						consultarCodigoFabrica.append("     pneu ");
-						consultarCodigoFabrica.append("where ");
-						consultarCodigoFabrica.append("     nm_fabrica = ?");
-						consultarCodigoFabrica.append("and  ");
-						consultarCodigoFabrica.append("     cd_fabrica != 0");
+						ltFabrica = lsFabrica;
 
-						try (Connection conNew = integracaoVO.getConexao()) {
-							try (PreparedStatement pst = con.prepareStatement(consultarCodigoFabrica.toString())) {
-								int i = 1;
-								pst.setString(i++, lsFabrica);
-								try (ResultSet rs = pst.executeQuery()) {
-									while (rs.next()) {
-										codigoFabrica = rs.getInt("cd_fabrica");
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						codigoFabrica = buscaCodigoTabelaPneu(integracaoVO, "nm_fabrica", "cd_fabrica", lsFabrica);
+
 					}
-					final*/
+
 					else {
+						String novoCodigoFabrica = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_fabrica", codigoFabrica);
+						codigoFabrica = novoCodigoFabrica;
 
-						StringBuilder consultarCodigoNovoFabrica = new StringBuilder();
-						consultarCodigoNovoFabrica.append("select ");
-						consultarCodigoNovoFabrica.append("     MAX(cd_fabrica) + 1 as cd_fabrica");
-						consultarCodigoNovoFabrica.append("from ");
-						consultarCodigoNovoFabrica.append("     pneu");
-
-						try (Connection conNovaFabrica = integracaoVO.getConexao()) {
-							try (PreparedStatement pstNovaFabrica = con
-									.prepareStatement(consultarCodigoNovoFabrica.toString())) {
-								int i = 1;
-								pstNovaFabrica.setInt(i++, codigoFabrica);
-								try (ResultSet rsNovaFabrica = pstNovaFabrica.executeQuery()) {
-									while (rsNovaFabrica.next()) {
-										codigoFabrica = rsNovaFabrica.getInt("cd_fabrica");
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
 					}
 
 					if (ltDimensao.equals("")) {
@@ -494,5 +448,35 @@ public class CadastroPneu {
 			e.printStackTrace();
 		}
 		return codigoEncontrado;
+	}
+
+	public String buscaNovoCodigoTabelaPneu(IntegracaoVO integracaoVO, String codigoColuna, String codigoTipo) {
+
+		String codigoNovo = null;
+
+		try {
+			StringBuilder buscarNovoCodigoAddMaisUm = new StringBuilder();
+			buscarNovoCodigoAddMaisUm.append("select MAX(" + codigoColuna + ") + 1 as codigo");
+			buscarNovoCodigoAddMaisUm.append("from");
+			buscarNovoCodigoAddMaisUm.append("	pneu");
+
+			try (Connection con = integracaoVO.getConexao()) {
+				try (PreparedStatement pst = con.prepareStatement(buscarNovoCodigoAddMaisUm.toString())) {
+					int i = 1;
+					pst.setString(i++, codigoTipo);
+					try (ResultSet rs = pst.executeQuery()) {
+						while (rs.next()) {
+							codigoNovo = rs.getString(codigoColuna);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return codigoNovo;
 	}
 }
