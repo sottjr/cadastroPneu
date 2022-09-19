@@ -109,7 +109,7 @@ public class CadastroPneu {
 					}
 
 					else {
-						int novoCodigoFabrica = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_fabrica", codigoFabrica);
+						int novoCodigoFabrica = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_fabrica");
 
 						codigoFabrica = novoCodigoFabrica;
 					}
@@ -119,8 +119,7 @@ public class CadastroPneu {
 
 						codigoDimensaoPneu = buscaCodigoTabelaPneu(integracaoVO, "dimensao", "cd_dimensao", lsDimensao);
 					} else {
-						int novoCodigoDimensaoPneu = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_dimensao",
-								codigoDimensaoPneu);
+						int novoCodigoDimensaoPneu = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_dimensao");
 
 						codigoDimensaoPneu = novoCodigoDimensaoPneu;
 					}
@@ -132,7 +131,7 @@ public class CadastroPneu {
 
 					} else {
 
-						int novoCodigoModelo = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_dimensao", codigoModelo);
+						int novoCodigoModelo = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_dimensao");
 
 						codigoModelo = novoCodigoModelo;
 					}
@@ -144,7 +143,7 @@ public class CadastroPneu {
 
 					} else {
 
-						int novoCodigoDesenho = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_desenho", codigoDesenho);
+						int novoCodigoDesenho = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_desenho");
 
 						codigoDesenho = novoCodigoDesenho;
 					}
@@ -157,8 +156,7 @@ public class CadastroPneu {
 
 					} else {
 
-						int novoCodigoTipoBorracha = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_desenho",
-								codigoTipoBorracha);
+						int novoCodigoTipoBorracha = buscaNovoCodigoTabelaPneu(integracaoVO, "cd_desenho");
 
 						codigoTipoBorracha = novoCodigoTipoBorracha;
 					}
@@ -327,23 +325,24 @@ public class CadastroPneu {
 		return codigoEncontrado;
 	}
 
-	public int buscaNovoCodigoTabelaPneu(IntegracaoVO integracaoVO, String codigoColuna, int codigoTipo) {
+	public int buscaNovoCodigoTabelaPneu(IntegracaoVO integracaoVO, String codigoColuna) {
 
 		int codigoNovo = 0;
 
 		try {
 			StringBuilder buscarNovoCodigoAddMaisUm = new StringBuilder();
-			buscarNovoCodigoAddMaisUm.append("select MAX(" + codigoColuna + ") + 1 as codigo");
-			buscarNovoCodigoAddMaisUm.append("from");
-			buscarNovoCodigoAddMaisUm.append("	pneu");
+			buscarNovoCodigoAddMaisUm.append(" select MAX(" + codigoColuna + ") + 1 as codigo ");
+			buscarNovoCodigoAddMaisUm.append(" from ");
+			buscarNovoCodigoAddMaisUm.append("	pneu ");
 
 			try (Connection con = integracaoVO.getConexao()) {
+				logger.info(buscarNovoCodigoAddMaisUm.toString());
 				try (PreparedStatement pst = con.prepareStatement(buscarNovoCodigoAddMaisUm.toString())) {
-					int i = 1;
-					pst.setInt(i++, codigoTipo);
 					try (ResultSet rs = pst.executeQuery()) {
 						while (rs.next()) {
+							logger.info(rs.getInt("codigo"));
 							codigoNovo = rs.getInt("codigo");
+							
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -354,6 +353,7 @@ public class CadastroPneu {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		logger.info(codigoNovo);
 		return codigoNovo;
 	}
 }
