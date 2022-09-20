@@ -26,6 +26,7 @@ import br.com.lecom.atos.servicos.annotation.Version;
 @Version({ 1, 0, 0 })
 public class CadastroPneu {
 	private final Logger logger = Logger.getLogger(this.getClass());
+	int codigoFornecedor = 0;
 
 	@Execution
 	public void realizarCadastroPneu(IntegracaoVO integracaoVO) throws Exception {
@@ -85,15 +86,14 @@ public class CadastroPneu {
 					String lsDesenho = Funcoes.nulo(ob.get("CAD_LS_NM_DESENHO"), "");
 					String ltTipoBorracha = Funcoes.nulo(ob.get("CAD_LT_NEW_TIPO_BORRA"), "");
 					String lsTipoBorracha = Funcoes.nulo(ob.get("CAD_LS_NM_TIPO_BORRA"), "");
-					String ltFornecedor = Funcoes.nulo(ob.get("CAD_LS_FORNECEDOR"), "");
-					String lsFornecedor = Funcoes.nulo(ob.get("CAD_LT_NEW_FORNECEDOR "), "");
+					String ltFornecedor = Funcoes.nulo(ob.get("CAD_LT_NEW_FORNECEDOR"), "");
+					String lsFornecedor = Funcoes.nulo(ob.get("CAD_LS_FORNECEDOR"), "");
 
 					int codigoFabrica = 0;
 					int codigoDimensaoPneu = 0;
 					int codigoModelo = 0;
 					int codigoDesenho = 0;
 					int codigoTipoBorracha = 0;
-					int codigoFornecedor = 0;
 
 					if (ltFabrica.equals("")) {
 						ltFabrica = lsFabrica;
@@ -133,11 +133,15 @@ public class CadastroPneu {
 					}
 					if (ltFornecedor.equals("")) {
 						ltFornecedor = lsFornecedor;
+
 						codigoFornecedor = buscaCodigoTabelaFornecedor(integracaoVO, "nm_fornecedor", "cd_fornecedor",
 								lsFornecedor);
+
 					} else {
-						buscaNovoCodigoTabelaFornecedor(integracaoVO, "cd_fornecedor", ltFornecedor);
+						insertTabelaFornecedor(integracaoVO, ltFornecedor);
+
 					}
+
 					try (PreparedStatement pst1 = con.prepareStatement(inserirPneu.toString())) {
 						int i = 1;
 
@@ -186,29 +190,6 @@ public class CadastroPneu {
 			logger.error("Erro ao executar integração", e);
 
 		}
-	}
-
-	public void insertTabelaFornecedor(IntegracaoVO integracaoVO, int codigoFornecedor, String nomeFornecedor) {
-		try {
-			integracaoVO.setConexao("BPM_AUX");
-			try (Connection con = integracaoVO.getConexao()) {
-				StringBuilder inserirFornecedor = new StringBuilder();
-				inserirFornecedor.append("INSERT INTO");
-				inserirFornecedor.append("		fornecedor");
-				inserirFornecedor.append("		(cd_fornecedor");
-				inserirFornecedor.append("		,nm_fornecedor)");
-				inserirFornecedor.append("Values");
-				inserirFornecedor.append("(?,?);");
-				try (PreparedStatement pst = con.prepareStatement(inserirFornecedor.toString())) {
-					pst.setInt(1, codigoFornecedor);
-					pst.setString(2, nomeFornecedor);
-					pst.executeUpdate();
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 	}
 
 	public int buscaCodigoTabelaPneu(IntegracaoVO integracaoVO, String nomeColuna, String codigoColuna,
@@ -268,6 +249,35 @@ public class CadastroPneu {
 		return codigoNovo;
 	}
 
+	public int buscaNovoCodigoTabelaFornecedor(IntegracaoVO integracaoVO) {
+
+		int codigoNovoFornecedor = 1;
+
+		try {
+			StringBuilder buscarNovoCodigoAddMaisUmFornecedores = new StringBuilder();
+			buscarNovoCodigoAddMaisUmFornecedores.append(" select MAX(cd_fornecedor) as codigo ");
+			buscarNovoCodigoAddMaisUmFornecedores.append(" from ");
+			buscarNovoCodigoAddMaisUmFornecedores.append("	fornecedor ");
+
+			try (Connection con = integracaoVO.getConexao()) {
+				try (PreparedStatement pst = con.prepareStatement(buscarNovoCodigoAddMaisUmFornecedores.toString())) {
+					try (ResultSet rs = pst.executeQuery()) {
+						while (rs.next()) {
+							codigoNovoFornecedor = rs.getInt("codigo");
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return codigoNovoFornecedor;
+	}
+
 	public int buscaCodigoTabelaFornecedor(IntegracaoVO integracaoVO, String nomeColuna, String codigoColuna,
 			String lsValue) {
 
@@ -279,7 +289,7 @@ public class CadastroPneu {
 			buscarCodigoFornecedor.append(" from ");
 			buscarCodigoFornecedor.append("		fornecedor ");
 			buscarCodigoFornecedor.append(" where " + nomeColuna + " = ? ");
-			buscarCodigoFornecedor.append(" and " + codigoColuna + " != 0");
+			buscarCodigoFornecedor.append(" and " + codigoColuna + " != 0 ");
 
 			try (Connection con = integracaoVO.getConexao()) {
 				try (PreparedStatement pst = con.prepareStatement(buscarCodigoFornecedor.toString())) {
@@ -287,7 +297,6 @@ public class CadastroPneu {
 					pst.setString(i++, lsValue);
 
 					try (ResultSet rs = pst.executeQuery()) {
-
 						while (rs.next()) {
 							codigoFornecedorEncontrado = rs.getInt("codigo");
 						}
@@ -300,28 +309,26 @@ public class CadastroPneu {
 		return codigoFornecedorEncontrado;
 	}
 
-	public void buscaNovoCodigoTabelaFornecedor(IntegracaoVO integracaoVO, String codigoColuna, String ltValue) {
-
-		int codigoNovoFornecedor = 0;
-
+	public void insertTabelaFornecedor(IntegracaoVO integracaoVO, String nomeFornecedor) {
 		try {
-			StringBuilder buscarNovoCodigoAddMaisUmFornecedores = new StringBuilder();
-			buscarNovoCodigoAddMaisUmFornecedores.append(" select MAX(" + codigoColuna + ") + 1 as codigo ");
-			buscarNovoCodigoAddMaisUmFornecedores.append(" from ");
-			buscarNovoCodigoAddMaisUmFornecedores.append("	fornecedor ");
+			StringBuilder inserirFornecedor = new StringBuilder();
+			inserirFornecedor.append(" INSERT INTO ");
+			inserirFornecedor.append("		fornecedor ");
+			inserirFornecedor.append("		(nm_fornecedor) ");
+			inserirFornecedor.append(" Values (?) ");
+
 			try (Connection con = integracaoVO.getConexao()) {
-				try (PreparedStatement pst = con.prepareStatement(buscarNovoCodigoAddMaisUmFornecedores.toString())) {
-					try (ResultSet rs = pst.executeQuery()) {
-						codigoNovoFornecedor = rs.getInt("cd_fornecedor");
-						insertTabelaFornecedor(integracaoVO, codigoNovoFornecedor, ltValue);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+				try (PreparedStatement pst = con.prepareStatement(inserirFornecedor.toString())) {
+					pst.setString(1, nomeFornecedor);
+					pst.executeUpdate();
+
 				}
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		codigoFornecedor = buscaNovoCodigoTabelaFornecedor(integracaoVO);
+
 	}
+
 }
