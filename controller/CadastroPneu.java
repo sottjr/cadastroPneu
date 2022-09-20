@@ -36,11 +36,7 @@ public class CadastroPneu {
 			integracaoVO.setConexao("BPM_AUX");
 
 			List<Map<String, Object>> listaGrid = integracaoVO.getDadosModeloGrid("CADPNEU");
-			logger.info("resultado insert: " + listaGrid);
 			for (Map<String, Object> ob : listaGrid) {
-				logger.debug("# ob: " + ob);
-				logger.info("Isto é o listaGrid: " + listaGrid);
-				logger.info("Isto é o ob: " + ob);
 
 				try (Connection con = integracaoVO.getConexao()) {
 					StringBuilder inserirPneu = new StringBuilder();
