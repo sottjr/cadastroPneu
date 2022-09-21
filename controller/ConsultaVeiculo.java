@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,11 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import com.lecom.tecnologia.db.DBUtils;
 import com.lecom.workflow.cadastros.common.util.Funcoes;
+import com.lecom.workflow.cadastros.cpfcnpjlote.controller.EnviaPrimeiroEmail;
 import com.lecom.workflow.vo.IntegracaoVO;
+import org.apache.log4j.Logger;
+
+
 
 import br.com.lecom.atos.utils.view.ControllerServlet;
 
@@ -37,6 +42,14 @@ public class ConsultaVeiculo extends ControllerServlet {
 			String ltPlacaVeiculo = Funcoes.nulo(campo.get("LT_PLACA_VEICULO"), "");
 			String ltCodVeiculo = Funcoes.nulo(campo.get("LT_CD_VEICULO"), "");
 			List<Map<String, String>> retornoConsultaPneu = consultaPneu(integracaoVO, ltCodVeiculo, ltPlacaVeiculo);
+			List<Map<String, Object>> retornoConsultaPneuGrid = consultaPneuGrid(integracaoVO, ltCodVeiculo, ltPlacaVeiculo);
+			
+			  try {
+	            	 List<Map<String, String>> dadosDaConsultaPneu = retornoConsultaPneu;
+	            	 dadosDaConsultaPneu.forEach(informacoes -> {
+	            		 
+	            		
+		        	});
 			
 			
 
