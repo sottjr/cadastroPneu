@@ -53,7 +53,6 @@ public class LupaVeiculo extends ControllerServlet{
 				sSql.append("		,V.placa AS placa	");
 				sSql.append("		,V.qtd_Pneus AS qtd_Pneus		");
 				sSql.append("	FROM veiculo AS V	");
-				sSql.append("	LEFT JOIN veiculo_pneu AS VP ON (VP.cd_veiculo = V.cd_veiculo)	");
 				sSql.append("	WHERE V.cd_veiculo like '%" + codVeiculo + "%'	");
 				sSql.append("	OR V.cd_veiculo like '%" + codPlaca + "%'	");
 
